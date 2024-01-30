@@ -81,7 +81,7 @@ def infer(epoch, batch_size=1, use_cpu=False):
     tl.files.exists_or_mkdir(save_dir)
 
     valid_lf_extras, names, height, width = read_valid_images(valid_lr_img_path)
-    t_image = tf.placeholder('float32', [batch_size, height, width, 3])
+    t_image = tf.placeholder('float32', [batch_size, height, width, 91])
     print("Placeholder", t_image.shape)
     SR_size=config.img_setting.sr_factor*np.array([height,width])
     print("SR_size", SR_size)
@@ -101,14 +101,14 @@ def infer(epoch, batch_size=1, use_cpu=False):
                                       channels_interp=channels_interp, normalize_mode=normalize_mode,
                                       transform='SAI2ViewStack')
         elif config.net_setting.Recon_model == 'MultiRes_UNeT_test':
-        """
+        
         Recon_net = MultiRes_UNeT_test(lf_extra=SR_net.outputs,
                                                 n_slices=n_slices,
                                                 output_size=Recon_size,
                                                 is_train=True, reuse=False, name=config.net_setting.Recon_model,
                                                 channels_interp=channels_interp, normalize_mode=normalize_mode
                                                 )
-
+        """
         Recon_net = MultiRes_UNeT_test(lf_extra=SR_net.outputs,
                                             n_slices=n_slices,
                                             output_size=Recon_size,
@@ -120,8 +120,8 @@ def infer(epoch, batch_size=1, use_cpu=False):
                     ('.npz' in filename and epoch in filename and 'SR' in filename)]
     Recon_ckpt_file = [filename for filename in os.listdir(checkpoint_dir) if
                        ('.npz' in filename and epoch in filename and 'recon' in filename)]
-
-
+    print("CHECKPOINT", checkpoint_dir)
+    print('SR_ckpt_file', SR_ckpt_file)
     with tf.Session(config=tf.ConfigProto(allow_soft_placement=True, log_device_placement=False)) as sess:
         tl.layers.initialize_global_variables(sess)
 
