@@ -109,6 +109,13 @@ def infer(epoch, batch_size=1, use_cpu=False):
                                                 channels_interp=channels_interp, normalize_mode=normalize_mode
                                                 )
 
+        Recon_net = MultiRes_UNeT_test(lf_extra=SR_net.outputs,
+                                            n_slices=n_slices,
+                                            output_size=Recon_size,
+                                            is_train=True, reuse=False, name=config.net_setting.Recon_model,
+                                            channels_interp=channels_interp, normalize_mode=normalize_mode
+                                            )
+
     SR_ckpt_file = [filename for filename in os.listdir(checkpoint_dir) if
                     ('.npz' in filename and epoch in filename and 'SR' in filename)]
     Recon_ckpt_file = [filename for filename in os.listdir(checkpoint_dir) if
