@@ -1,3 +1,4 @@
+from traceback import print_exc
 import imageio
 import tensorflow as tf
 import tensorlayer as tl
@@ -69,23 +70,28 @@ def infer(epoch, batch_size=1, use_cpu=False):
         -batch_size: int, batch size of the VCD-Net
         -use_cpu   : bool, whether to use cpu for inference. If false, gpu will be used.
     """
-
+    #print(config.Trans.ckpt_dir)
+    #print(config.TRAIN.ckpt_dir)
     epoch = 'best' if epoch == 0 else epoch
-    checkpoint_dir = config.Trans.ckpt_dir if args.trans else config.TRAIN.ckpt_dir
+    #checkpoint_dir = config.Trans.ckpt_dir if args.trans else config.TRAIN.ckpt_dir
+    print("HERE", config.TRAIN.ckpt_dir)
+    checkpoint_dir = config.TRAIN.ckpt_dir
     valid_lr_img_path = config.VALID.lf2d_path
     save_dir = config.VALID.saving_path
     tl.files.exists_or_mkdir(save_dir)
 
     valid_lf_extras, names, height, width = read_valid_images(valid_lr_img_path)
     t_image = tf.placeholder('float32', [batch_size, height, width, 3])
+    print("Placeholder", t_image.shape)
     SR_size=config.img_setting.sr_factor*np.array([height,width])
-
+    print("SR_size", SR_size)
     Recon_size=np.multiply(SR_size,config.img_setting.ReScale_factor)
     device_str = '/gpu:0'
     with tf.device(device_str):
         SR_net = LF_attention_denoise(LFP=t_image, output_size=SR_size, sr_factor=sr_factor, angRes=n_num,
                                   reuse=False, name=config.net_setting.SR_model,
                              channels_interp=64, normalize_mode=normalize_mode)
+        """
         if config.net_setting.Recon_model=='MultiRes':
             Recon_net = MultiRes_UNet(n_interp=1,sub_pixel=3,
                 lf_extra=SR_net.outputs,
@@ -95,7 +101,8 @@ def infer(epoch, batch_size=1, use_cpu=False):
                                       channels_interp=channels_interp, normalize_mode=normalize_mode,
                                       transform='SAI2ViewStack')
         elif config.net_setting.Recon_model == 'MultiRes_UNeT_test':
-            Recon_net = MultiRes_UNeT_test(lf_extra=SR_net.outputs,
+        """
+        Recon_net = MultiRes_UNeT_test(lf_extra=SR_net.outputs,
                                                 n_slices=n_slices,
                                                 output_size=Recon_size,
                                                 is_train=True, reuse=False, name=config.net_setting.Recon_model,
@@ -103,7 +110,7 @@ def infer(epoch, batch_size=1, use_cpu=False):
                                                 )
 
     SR_ckpt_file = [filename for filename in os.listdir(checkpoint_dir) if
-                    ('.npz' in filename and epoch in filename and 'denoise' in filename)]
+                    ('.npz' in filename and epoch in filename and 'SR' in filename)]
     Recon_ckpt_file = [filename for filename in os.listdir(checkpoint_dir) if
                        ('.npz' in filename and epoch in filename and 'recon' in filename)]
 
