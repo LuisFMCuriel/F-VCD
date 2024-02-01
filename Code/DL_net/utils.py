@@ -2,8 +2,6 @@ import numpy as np
 import imageio
 import PIL.Image as pilimg
 import tensorlayer as tl
-import os
-from tifffile import imread, imsave
 # import cv2
 
 
@@ -397,66 +395,7 @@ def generate_mask(n_num, img_size):
                         
     return mask
     
-def calculate_distance(coord1, coord2):
-    return np.sqrt(np.sum((coord1 - coord2)**2, axis=1))
 
-def create_patches(FLF: np.array,
-                   WF: np.array,
-                   index_name: str,
-                   upsample_factor: int = 7,
-                   patch_size: int = 32, 
-                   num_patches: int = 5, 
-                   std_threshold: float = 10,
-                   path_s_FLF: str = r"X:\LuisFel\0 FromMicroscopes\1 Loli\FLMic\Fluorescence\Datasets\msb1217_msb1309\EIs_patches",
-                   path_s_WF: str = r"X:\LuisFel\0 FromMicroscopes\1 Loli\FLMic\Fluorescence\Datasets\msb1217_msb1309\WF_patches",
-                   min_distance_factor: float = 0.5):
-    # Get the dimensions of the original image
-    n, height, width = FLF.shape
-
-    # Generate all possible patch coordinates
-    possible_coordinates = np.array(np.meshgrid(np.arange(height - patch_size), np.arange(width - patch_size))).T.reshape(-1, 2)
-    
-    # Randomly shuffle the coordinates
-    np.random.shuffle(possible_coordinates)
-
-    # Initialize an array to store the patches
-    patches_FLF = []
-    patches_WF = []
-    # Keep track of the extracted patch coordinates
-    extracted_coordinates = set()
-
-    # Function to check the distance between the new coordinate and existing ones
-    def is_far_enough(new_coord):
-        if not extracted_coordinates:
-            return True  # No existing coordinates, so new_coord is far enough
-
-        distances = calculate_distance(np.array(list(extracted_coordinates)), new_coord)
-        return np.all(distances >= min_distance_factor * patch_size)
-
-    for coord in possible_coordinates:
-        # Check if the coordinates are far enough from existing ones
-        if is_far_enough(coord):
-            # Extract the patch from the channel
-            patch = FLF[:, coord[0]:coord[0] + patch_size, 
-                        coord[1]:coord[1] + patch_size]
-
-
-            # Check the standard deviation of the patch
-            if np.std(patch[0,:,:]) > std_threshold:
-                extracted_coordinates.add(tuple(coord))
-                patches_FLF.append(patch)
-                patch = WF[:, coord[0]*upsample_factor:coord[0]*upsample_factor + patch_size*upsample_factor, 
-                            coord[1]*upsample_factor:coord[1]*upsample_factor + patch_size*upsample_factor]
-                patches_WF.append(patch)
-                if len(patches_FLF) == num_patches:
-                    break
-
-    # Save patches to the specified path
-    for i in range(len(patches_FLF)):
-        save_path = os.path.join(path_s_FLF, index_name + f'patch_{i}.tif')
-        imsave(save_path, patches_FLF[i])
-        save_path = os.path.join(path_s_WF, index_name + f'patch_{i}.tif')
-        imsave(save_path, patches_WF[i])
 
 # def get_laplace_pyr(img,layer_num=3):
 #     batch,height,width,channel=img.shape
