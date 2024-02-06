@@ -7,33 +7,33 @@ addpath ./util
 clc;
 clear all;
 % Import configurations of FLFM setup
-psf_save_folder='View3_simu_[m3.4-3.4]_zstep_0.17';
+psf_save_folder= 'Simulation_test4';%'Simulation_test'; %'View3_simu_[m3.4-3.4]_zstep_0.17';
 Config.gridType =  'Reg';
-Config.NA =1.4;
-Config.M=100;
-Config.f1 = 180000;
+Config.NA =1.25; %1.25; %1.4;
+Config.M=40; %40; %100;
+Config.f1 = 150000; %150000; %180000;
 Config.fobj = Config.f1/Config.M;         %focal length of the objective lens. Camera.fobj = Camera.ftl/Camera.M
 
-Config.f2 = 300000;        
-Config.fm =120000;           %fm - focal length of the micro-lens.
+Config.f2 = 150000; %150000; %300000;       
+Config.fm =30600; %30600; %120000;           %fm - focal length of the micro-lens.
 Config.mla2sensor = Config.fm;   %distance between the MLA plane and camera sensor plane.
 
-Config.lensPitch = 3250;
-Config.WaveLength = 510*1e-3;
+Config.lensPitch = 1000; %1000; %3250;
+Config.WaveLength = 505*1e-3; %505*1e-3; %510*1e-3;
 
-Config.spacingPixels=499;  %the number of pixels between two horizontally neighboring lenslets.
+Config.spacingPixels= 219; %217;%499;  %the number of pixels between two horizontally neighboring lenslets.
 Config.pixelPitch =Config.lensPitch /Config.spacingPixels; % sensor pixel pitch (in ?m).
 
 Config.immersion_n=1.518;
 Config.n = 1;
-Config.SensorSize = [1497,1497]; %the size of the input light field image,1075
+Config.SensorSize = [2304, 4096]; %[2304,2304]; %[1497,1497]; %the size of the input light field image,1075
 Config.X_center = ceil(Config.SensorSize(1)/2);
 Config.Y_center = ceil(Config.SensorSize(2)/2);
-Config.depthStep = 0.17;
-Config.depthRange = [-3.4,3.4];
+Config.depthStep = 1; %1;%0.17;
+Config.depthRange = [-50, 50]; %[-50, 50];%[-3.4,3.4];
 
-Config.MLAnumX = 3; % deprecated 
-Config.MLAnumY = 3; % deprecated 
+Config.MLAnumX = 6; % deprecated 
+Config.MLAnumY = 11; % deprecated 
 
 theta_dof= Config.lensPitch/sqrt(3)/Config.f2;
 D_pupuil=Config.f2*Config.NA*2/Config.M;
